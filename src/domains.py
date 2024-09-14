@@ -3,6 +3,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import random
 
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter
@@ -116,6 +117,13 @@ def adapt_parameters_tidybot(parameters):
 def adapt_parameters_spanner(parameters):
     if parameters["num_nuts"] != parameters["num_spanners"]:
         raise IllegalConfiguration("num_nuts must be <= num_spanners")
+    return parameters
+
+
+def adapt_parameters_childsnack(parameters):
+    num_children = parameters["children"]
+    choices = list(i / num_children for i in range(num_children + 1))
+    parameters["gluten_factor"] = choices[random.randint(0, num_children)]
     return parameters
 
 
@@ -271,22 +279,22 @@ DOMAINS = [
     ),
     Domain(
         "blocksworld_clear",
-        "blocksworld 3 {n}",
+        "blocksworld 4 {n}",
         #[
-        #    get_int("n", lower=2, upper=4),
+        #    get_int("n", lower=2, upper=5),
         #],  # training
         [
-            get_int("n", lower=1, upper=5, step_size=1)
+            get_int("n", lower=50, upper=79, step_size=1)
         ],  # testing
     ),
     Domain(
         "blocksworld_on",
-        "blocksworld 3 {n}",
+        "blocksworld 4 {n}",
         #[
         #    get_int("n", lower=2, upper=4),
         #],  # training
         [
-            get_int("n", lower=1, upper=5, step_size=1)
+            get_int("n", lower=50, upper=79, step_size=1)
         ],  # testing
     ),
     Domain(
@@ -295,27 +303,27 @@ DOMAINS = [
         [
             get_int("children", lower=1, upper=3),
             get_enum("trays", choices=[1]),
-            get_float("gluten_factor", lower=0., upper=1., precision=0.5),
             get_enum("constrainedness", choices=[1.0]),
         ],
+        adapt_parameters=adapt_parameters_childsnack,
     ),
     Domain(
         "driverlog",
         "dlgen {seed} {roadjunctions} {drivers} {packages} {trucks}",
         # training
-        #[
-        #    get_int("drivers", lower=1, upper=2),
-        #    get_int("packages", lower=1, upper=2),
-        #    get_int("roadjunctions", lower=2, upper=3),
-        #    get_int("trucks", lower=1, upper=2),
-        #],
-        # testing
         [
-            get_int("drivers", lower=4, upper=5),
-            get_int("packages", lower=4, upper=5),
-            get_int("roadjunctions", lower=4, upper=5),
-            get_int("trucks", lower=4, upper=5),
+            get_int("drivers", lower=1, upper=2),
+            get_int("packages", lower=1, upper=2),
+            get_int("roadjunctions", lower=2, upper=3),
+            get_int("trucks", lower=1, upper=2),
         ],
+        # testing
+        #[
+        #    get_int("drivers", lower=4, upper=5),
+        #    get_int("packages", lower=4, upper=5),
+        #    get_int("roadjunctions", lower=4, upper=5),
+        #    get_int("trucks", lower=4, upper=5),
+        #],
     ),
     Domain(
         "logistics",
@@ -372,6 +380,15 @@ DOMAINS = [
         adapt_parameters=adapt_parameters_grid,
     ),
     Domain(
+        "hiking",
+        "./generator.py {num_couples} {num_cars} {num_places} {seed}",
+        [
+            get_int("num_couples", lower=1, upper=3),
+            get_int("num_cars", lower=1, upper=3),
+            get_int("num_places", lower=1, upper=3),
+        ],
+    ),
+    Domain(
         "mprime",
         "mprime -l {locations} -f {maxfuel} -s {maxspace} -v {vehicles} -c {cargos} -r {seed}",
         [
@@ -418,6 +435,28 @@ DOMAINS = [
             get_int("reactions", lower=10, upper=1010, step_size=50),  # IPC: 12-480
             get_int("goals", lower=10, upper=90, step_size=10),  # IPC: 1-40
             get_int("substances", lower=10, upper=80, step_size=10),  # IPC: 3-35
+        ],
+    ),
+    Domain(  # <seed> <#rovers> <#waypoints> <#objectives> <#cameras> <#n-goals>
+        "rovers",
+        "rovgen {seed} {num_rovers} {num_waypoints} {num_objectives} {num_cameras} {num_goals}",
+        [
+            get_int("num_rovers", lower=1, upper=2),
+            get_int("num_waypoints", lower=1, upper=3),
+            get_int("num_objectives", lower=1, upper=2),
+            get_int("num_cameras", lower=1, upper=2),
+            get_int("num_goals", lower=1, upper=2),
+        ],
+    ),
+    Domain(
+        "satellite",
+        "satgen {seed} {num_satellites} {max_instruments} {num_modes} {num_targets} {num_observations}",
+        [
+            get_int("num_satellites", lower=1, upper=2),
+            get_int("max_instruments", lower=1, upper=2),
+            get_int("num_modes", lower=1, upper=2),
+            get_int("num_targets", lower=1, upper=2),
+            get_int("num_observations", lower=1, upper=2),
         ],
     ),
     Domain(
@@ -504,8 +543,22 @@ DOMAINS = [
         "miconic -f {num_floors} -p {num_passengers}",
         # training
         [
-            get_int("num_floors", lower=1, upper=4),
-            get_int("num_passengers", lower=1, upper=4)
+            get_int("num_floors", lower=3, upper=5),
+            get_int("num_passengers", lower=3, upper=5)
+        ]
+        # testing
+        #[
+        #    get_int("num_floors", lower=20, upper=30),
+        #    get_int("num_passengers", lower=20, upper=30)
+        #]
+    ),
+    Domain(
+        "miconic-fulladl",
+        "miconic -f {num_floors} -p {num_passengers}",
+        # training
+        [
+            get_int("num_floors", lower=3, upper=6),
+            get_int("num_passengers", lower=3, upper=4)
         ]
         # testing
         #[
