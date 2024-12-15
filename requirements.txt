@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-configspace==0.4.20
+configspace==0.4.19
     # via smac
 cycler==0.10.0
     # via matplotlib
@@ -43,13 +43,13 @@ pyparsing==2.4.7
     # via
     #   configspace
     #   matplotlib
-pyrfr==0.8.2
+# pyrfr==0.8.2
     # via smac
 python-dateutil==2.8.2
     # via matplotlib
-scikit-learn==1.0
+scikit-learn==1.0.2
     # via smac
-scipy==1.7.1
+scipy==1.7.2
     # via
     #   scikit-learn
     #   smac
